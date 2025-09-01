@@ -21,7 +21,9 @@
     pop/2,
     nip/2,
     rot/2,
-    swp/2
+    swp/2,
+    dup/2,
+    ovr/2
 ]).
 
 -spec lit(Opcode :: pos_integer(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
@@ -106,5 +108,41 @@ rot(Args, State) ->
         {1, 1, Stack} ->
             [Val6, Val5, Val4, Val3, Val2, Val1] = uxn_stack:get(Stack, State, 6, 6),
             uxn_stack:push(Stack, [Val4, Val3, Val2, Val1, Val6, Val5], State)
+    end,
+    {continue, FinalState}.
+
+-spec dup(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+dup(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Val1], UpdatedState} = uxn_stack:pop(Stack, State, 1),
+            uxn_stack:push(Stack, [Val1, Val1], UpdatedState);
+        {0, 1, Stack} ->
+            {[Val1, Val2], UpdatedState} = uxn_stack:pop(Stack, State, 2),
+            uxn_stack:push(Stack, [Val1, Val2, Val1, Val2], UpdatedState);
+        {1, 0, Stack} ->
+            [Val1] = uxn_stack:get(Stack, State, 1, 1),
+            uxn_stack:push(Stack, [Val1, Val1], State);
+        {1, 1, Stack} ->
+            [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
+            uxn_stack:push(Stack, [Val2, Val1, Val2, Val1], State)
+    end,
+    {continue, FinalState}.
+
+-spec ovr(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+ovr(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Val1, Val2], UpdatedState} = uxn_stack:pop(Stack, State, 2),
+            uxn_stack:push(Stack, [Val1, Val2, Val1], UpdatedState);
+        {0, 1, Stack} ->
+            {[Val1, Val2, Val3, Val4], UpdatedState} = uxn_stack:pop(Stack, State, 4),
+            uxn_stack:push(Stack, [Val1, Val2, Val3, Val4, Val1, Val2], UpdatedState);
+        {1, 0, Stack} ->
+            [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
+            uxn_stack:push(Stack, [Val2, Val1, Val2], State);
+        {1, 1, Stack} ->
+            [Val4, Val3, Val2, Val1] = uxn_stack:get(Stack, State, 4, 4),
+            uxn_stack:push(Stack, [Val4, Val3, Val2, Val1, Val4, Val3], State)
     end,
     {continue, FinalState}.

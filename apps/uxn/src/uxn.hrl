@@ -83,6 +83,24 @@
 -define(ROTKR, 16#C5).
 -define(ROT2KR, 16#E5).
 
+-define(DUP, 16#06).
+-define(DUP2, 16#26).
+-define(DUPR, 16#46).
+-define(DUP2R, 16#66).
+-define(DUPK, 16#86).
+-define(DUP2K, 16#A6).
+-define(DUPKR, 16#C6).
+-define(DUP2KR, 16#E6).
+
+-define(OVR, 16#07).
+-define(OVR2, 16#27).
+-define(OVRR, 16#47).
+-define(OVR2R, 16#67).
+-define(OVRK, 16#87).
+-define(OVR2K, 16#A7).
+-define(OVRKR, 16#C7).
+-define(OVR2KR, 16#E7).
+
 -define(LIT, 16#80).
 -define(LIT2, 16#A0).
 -define(LITR, 16#C0).
@@ -96,5 +114,7 @@
 -define(IS_NIP(Op), Op == ?NIP; Op == ?NIP2; Op == ?NIPR; Op == ?NIP2R; Op == ?NIPK; Op == ?NIP2K; Op == ?NIPKR; Op == ?NIP2KR).
 -define(IS_SWP(Op), Op == ?SWP; Op == ?SWP2; Op == ?SWPR; Op == ?SWP2R; Op == ?SWPK; Op == ?SWP2K; Op == ?SWPKR; Op == ?SWP2KR).
 -define(IS_ROT(Op), Op == ?ROT; Op == ?ROT2; Op == ?ROTR; Op == ?ROT2R; Op == ?ROTK; Op == ?ROT2K; Op == ?ROTKR; Op == ?ROT2KR).
+-define(IS_DUP(Op), Op == ?DUP; Op == ?DUP2; Op == ?DUPR; Op == ?DUP2R; Op == ?DUPK; Op == ?DUP2K; Op == ?DUPKR; Op == ?DUP2KR).
+-define(IS_OVR(Op), Op == ?OVR; Op == ?OVR2; Op == ?OVRR; Op == ?OVR2R; Op == ?OVRK; Op == ?OVR2K; Op == ?OVRKR; Op == ?OVR2KR).
 
 -define(IS_LIT(Op), Op == ?LIT; Op == ?LIT2; Op == ?LITR; Op == ?LIT2R).
