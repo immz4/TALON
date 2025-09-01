@@ -48,7 +48,7 @@ inc(Args, State) ->
 
 -spec pop(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
 pop(Args, State) ->
-    FinalState = case Args of
+    {_, FinalState} = case Args of
         {0, 0, Stack} -> uxn_stack:pop(Stack, State, 1);
         {0, 1, Stack} -> uxn_stack:pop(Stack, State, 2);
         {_, _, _} -> State

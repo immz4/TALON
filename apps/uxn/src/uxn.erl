@@ -30,15 +30,15 @@ start() -> gen_statem:start({local, ?MODULE}, ?MODULE, [], []).
 
 stop() -> gen_statem:stop(?MODULE).
 
--spec load(Bytecode :: nonempty_binary()) -> ok | {error, term()};
-          (Filename :: string()) -> ok | {error, term()}.
+-spec load(Bytecode :: nonempty_binary()) -> term();
+          (Filename :: string()) -> term().
 load(Bytecode) when is_binary(Bytecode) -> gen_statem:call(?MODULE, {load_bytecode, Bytecode});
 load(Filename) when is_list(Filename) -> gen_statem:call(?MODULE, {load_rom_file, Filename}).
 
--spec step() -> {Status :: continue | halt, State :: uxn_state()}.
+-spec step() -> term().
 step() -> gen_statem:call(?MODULE, step).
 
--spec get_state() -> uxn_state().
+-spec get_state() -> term().
 get_state() -> gen_statem:call(?MODULE, get_state).
 
 %% Mandatory callback functions
@@ -65,8 +65,9 @@ code_change(_Vsn, State, Data, _Extra) -> {ok, State, Data}.
       | {load_rom_file, nonempty_string()}.
 -type ready_ret() :: 
         {next_state, running, uxn_state(), [gen_statem:reply_action()]}
-      | {keep_state, uxn_state(), [gen_statem:reply_action()]}.
--spec ready(Event :: {call, gen_statem:from()}, Msg :: load_type(), State :: uxn_state()) -> Result :: ready_ret().
+      | {keep_state, uxn_state(), [gen_statem:reply_action()]}
+      | {keep_state_and_data, [gen_statem:reply_action()]}.
+-spec ready(Event :: {call, gen_statem:from()}, Msg :: load_type() | get_state, State :: uxn_state()) -> Result :: ready_ret().
 ready({call, From}, {load_bytecode, Bytecode}, State) ->
     RomData = binary_to_list(Bytecode),
     NewRam = load_rom_into_ram(RomData, 16#100, State#uxn_state.ram),
@@ -90,7 +91,8 @@ ready({call, From}, _Msg, State) -> {keep_state, State, [{reply, From, {error, n
         {next_state, halted, uxn_state(), [gen_statem:reply_action()]}
       | {keep_state, uxn_state(), [gen_statem:reply_action()]}
       | {keep_state_and_data, [gen_statem:reply_action()]}.
--spec running(Event :: {call, gen_statem:from()}, step, uxn_state()) -> step_ret().
+-spec running(Event :: {call, gen_statem:from()}, step, uxn_state()) -> step_ret();
+             (Event :: {call, gen_statem:from()}, get_state, uxn_state()) -> step_ret().
 running({call, From}, step, State) ->
     PC = State#uxn_state.pc,
     Opcode = maps:get(PC, State#uxn_state.ram),
