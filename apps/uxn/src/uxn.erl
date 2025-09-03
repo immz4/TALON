@@ -132,4 +132,8 @@ execute_opcode(Opcode, Args, State) when ?IS_SWP(Opcode) -> uxn_opcodes:swp(Args
 execute_opcode(Opcode, Args, State) when ?IS_ROT(Opcode) -> uxn_opcodes:rot(Args, State);
 execute_opcode(Opcode, Args, State) when ?IS_DUP(Opcode) -> uxn_opcodes:dup(Args, State);
 execute_opcode(Opcode, Args, State) when ?IS_OVR(Opcode) -> uxn_opcodes:ovr(Args, State);
+execute_opcode(Opcode, Args, State) when ?IS_EQU(Opcode) -> uxn_opcodes:equ(Args, State);
+execute_opcode(Opcode, Args, State) when ?IS_NEQ(Opcode) -> uxn_opcodes:neq(Args, State);
+execute_opcode(Opcode, Args, State) when ?IS_GTH(Opcode) -> uxn_opcodes:gth(Args, State);
+execute_opcode(Opcode, Args, State) when ?IS_LTH(Opcode) -> uxn_opcodes:lth(Args, State);
 execute_opcode(_, _, _) -> {error, wrong_opcode}.

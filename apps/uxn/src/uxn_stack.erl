@@ -16,6 +16,17 @@
 -module(uxn_stack).
 -include("uxn.hrl").
 -export([pop/3, push/3, get/3, get/4, copy/3]).
+-export([byte_to_short/1, short_to_byte/1, bool_to_num/1]).
+
+-spec byte_to_short({ByteHigh :: integer(), ByteLow :: integer()}) -> integer().
+byte_to_short({ByteHigh, ByteLow}) -> (ByteHigh bsl 8) bor ByteLow.
+
+-spec short_to_byte(Short :: integer()) -> {ByteHigh :: integer(), ByteLow :: integer()}.
+short_to_byte(Short) -> {Short bsr 8, Short band 16#FF}.
+
+-spec bool_to_num(Boolean :: boolean()) -> 1 | 0.
+bool_to_num(true) -> 1;
+bool_to_num(false) -> 0.
 
 -spec pop(Stack :: stack(),
           State :: uxn_state(),

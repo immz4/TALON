@@ -23,7 +23,11 @@
     rot/2,
     swp/2,
     dup/2,
-    ovr/2
+    ovr/2,
+    equ/2,
+    neq/2,
+    gth/2,
+    lth/2
 ]).
 
 -spec lit(Opcode :: pos_integer(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
@@ -144,5 +148,93 @@ ovr(Args, State) ->
         {1, 1, Stack} ->
             [Val4, Val3, Val2, Val1] = uxn_stack:get(Stack, State, 4, 4),
             uxn_stack:push(Stack, [Val4, Val3, Val2, Val1, Val4, Val3], State)
+    end,
+    {continue, FinalState}.
+
+-spec equ(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+equ(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Val1, Val2], UpdatedState} = uxn_stack:pop(Stack, State, 2),
+            NewVal = uxn_stack:bool_to_num(Val1 == Val2),
+            uxn_stack:push(Stack, [NewVal], UpdatedState);
+        {0, 1, Stack} ->
+            {[Val1, Val2, Val3, Val4], UpdatedState} = uxn_stack:pop(Stack, State, 4),
+            NewVal = uxn_stack:bool_to_num((Val1 == Val3) and (Val2 == Val4)),
+            uxn_stack:push(Stack, [NewVal], UpdatedState);
+        {1, 0, Stack} ->
+            [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
+            NewVal = uxn_stack:bool_to_num(Val1 == Val2),        
+            uxn_stack:push(Stack, [NewVal], State);
+        {1, 1, Stack} ->
+            [Val4, Val3, Val2, Val1] = uxn_stack:get(Stack, State, 4, 4),
+            NewVal = uxn_stack:bool_to_num((Val1 == Val3) and (Val2 == Val4)),
+            uxn_stack:push(Stack, [NewVal], State)
+    end,
+    {continue, FinalState}.
+
+-spec neq(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+neq(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Val1, Val2], UpdatedState} = uxn_stack:pop(Stack, State, 2),
+            NewVal = uxn_stack:bool_to_num(Val1 =/= Val2),
+            uxn_stack:push(Stack, [NewVal], UpdatedState);
+        {0, 1, Stack} ->
+            {[Val1, Val2, Val3, Val4], UpdatedState} = uxn_stack:pop(Stack, State, 4),
+            NewVal = uxn_stack:bool_to_num((Val1 =/= Val3) or (Val2 =/= Val4)),
+            uxn_stack:push(Stack, [NewVal], UpdatedState);
+        {1, 0, Stack} ->
+            [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
+            NewVal = uxn_stack:bool_to_num(Val1 =/= Val2),        
+            uxn_stack:push(Stack, [NewVal], State);
+        {1, 1, Stack} ->
+            [Val4, Val3, Val2, Val1] = uxn_stack:get(Stack, State, 4, 4),
+            NewVal = uxn_stack:bool_to_num((Val1 =/= Val3) or (Val2 =/= Val4)),
+            uxn_stack:push(Stack, [NewVal], State)
+    end,
+    {continue, FinalState}.
+
+-spec gth(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+gth(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Val1, Val2], UpdatedState} = uxn_stack:pop(Stack, State, 2),
+            NewVal = uxn_stack:bool_to_num(Val1 > Val2),
+            uxn_stack:push(Stack, [NewVal], UpdatedState);
+        {0, 1, Stack} ->
+            {[Val1, _, Val3, _], UpdatedState} = uxn_stack:pop(Stack, State, 4),
+            NewVal = uxn_stack:bool_to_num(Val1 > Val3),
+            uxn_stack:push(Stack, [NewVal], UpdatedState);
+        {1, 0, Stack} ->
+            [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
+            NewVal = uxn_stack:bool_to_num(Val1 > Val2),        
+            uxn_stack:push(Stack, [NewVal], State);
+        {1, 1, Stack} ->
+            [_, Val3, _, Val1] = uxn_stack:get(Stack, State, 4, 4),
+            NewVal = uxn_stack:bool_to_num(Val1 > Val3),
+            uxn_stack:push(Stack, [NewVal], State)
+    end,
+    {continue, FinalState}.
+
+-spec lth(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+lth(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Val1, Val2], UpdatedState} = uxn_stack:pop(Stack, State, 2),
+            NewVal = uxn_stack:bool_to_num(Val1 < Val2),
+            uxn_stack:push(Stack, [NewVal], UpdatedState);
+        {0, 1, Stack} ->
+            {[Val1, _, Val3, _], UpdatedState} = uxn_stack:pop(Stack, State, 4),
+            NewVal = uxn_stack:bool_to_num(Val1 < Val3),
+            uxn_stack:push(Stack, [NewVal], UpdatedState);
+        {1, 0, Stack} ->
+            [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
+            NewVal = uxn_stack:bool_to_num(Val1 < Val2),        
+            uxn_stack:push(Stack, [NewVal], State);
+        {1, 1, Stack} ->
+            [_, Val3, _, Val1] = uxn_stack:get(Stack, State, 4, 4),
+            NewVal = uxn_stack:bool_to_num(Val1 < Val3),
+            uxn_stack:push(Stack, [NewVal], State)
     end,
     {continue, FinalState}.

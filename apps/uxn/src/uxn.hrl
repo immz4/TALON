@@ -101,6 +101,42 @@
 -define(OVRKR, 16#C7).
 -define(OVR2KR, 16#E7).
 
+-define(EQU, 16#08).
+-define(EQU2, 16#28).
+-define(EQUR, 16#48).
+-define(EQU2R, 16#68).
+-define(EQUK, 16#88).
+-define(EQU2K, 16#A8).
+-define(EQUKR, 16#C8).
+-define(EQU2KR, 16#E8).
+
+-define(NEQ, 16#09).
+-define(NEQ2, 16#29).
+-define(NEQR, 16#49).
+-define(NEQ2R, 16#69).
+-define(NEQK, 16#89).
+-define(NEQ2K, 16#A9).
+-define(NEQKR, 16#C9).
+-define(NEQ2KR, 16#E9).
+
+-define(GTH, 16#0A).
+-define(GTH2, 16#2A).
+-define(GTHR, 16#4A).
+-define(GTH2R, 16#6A).
+-define(GTHK, 16#8A).
+-define(GTH2K, 16#AA).
+-define(GTHKR, 16#CA).
+-define(GTH2KR, 16#EA).
+
+-define(LTH, 16#0B).
+-define(LTH2, 16#2B).
+-define(LTHR, 16#4B).
+-define(LTH2R, 16#6B).
+-define(LTHK, 16#8B).
+-define(LTH2K, 16#AB).
+-define(LTHKR, 16#CB).
+-define(LTH2KR, 16#EB).
+
 -define(LIT, 16#80).
 -define(LIT2, 16#A0).
 -define(LITR, 16#C0).
@@ -116,5 +152,9 @@
 -define(IS_ROT(Op), Op == ?ROT; Op == ?ROT2; Op == ?ROTR; Op == ?ROT2R; Op == ?ROTK; Op == ?ROT2K; Op == ?ROTKR; Op == ?ROT2KR).
 -define(IS_DUP(Op), Op == ?DUP; Op == ?DUP2; Op == ?DUPR; Op == ?DUP2R; Op == ?DUPK; Op == ?DUP2K; Op == ?DUPKR; Op == ?DUP2KR).
 -define(IS_OVR(Op), Op == ?OVR; Op == ?OVR2; Op == ?OVRR; Op == ?OVR2R; Op == ?OVRK; Op == ?OVR2K; Op == ?OVRKR; Op == ?OVR2KR).
+-define(IS_EQU(Op), Op == ?EQU; Op == ?EQU2; Op == ?EQUR; Op == ?EQU2R; Op == ?EQUK; Op == ?EQU2K; Op == ?EQUKR; Op == ?EQU2KR).
+-define(IS_NEQ(Op), Op == ?NEQ; Op == ?NEQ2; Op == ?NEQR; Op == ?NEQ2R; Op == ?NEQK; Op == ?NEQ2K; Op == ?NEQKR; Op == ?NEQ2KR).
+-define(IS_GTH(Op), Op == ?GTH; Op == ?GTH2; Op == ?GTHR; Op == ?GTH2R; Op == ?GTHK; Op == ?GTH2K; Op == ?GTHKR; Op == ?GTH2KR).
+-define(IS_LTH(Op), Op == ?LTH; Op == ?LTH2; Op == ?LTHR; Op == ?LTH2R; Op == ?LTHK; Op == ?LTH2K; Op == ?LTHKR; Op == ?LTH2KR).
 
 -define(IS_LIT(Op), Op == ?LIT; Op == ?LIT2; Op == ?LITR; Op == ?LIT2R).
