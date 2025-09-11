@@ -36,10 +36,10 @@
 -spec lit(Opcode :: pos_integer(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
 lit(Opcode, State) ->
     FinalState = case Opcode of
-        ?LIT -> uxn_stack:copy({ram, wst}, State, 1);
-        ?LIT2 -> uxn_stack:copy({ram, wst}, State, 2);
-        ?LITR -> uxn_stack:copy({ram, rst}, State, 1);
-        ?LIT2R -> uxn_stack:copy({ram, rst}, State, 2)
+        16#80 -> uxn_stack:copy({ram, wst}, State, 1);
+        16#A0 -> uxn_stack:copy({ram, wst}, State, 2);
+        16#C0 -> uxn_stack:copy({ram, rst}, State, 1);
+        16#E0 -> uxn_stack:copy({ram, rst}, State, 2)
     end,
     {continue, FinalState}.
 

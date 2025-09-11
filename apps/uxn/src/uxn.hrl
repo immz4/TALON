@@ -36,155 +36,157 @@
 -endif.
 
 %% Define UXN opcode constants
--define(BRK, 16#00).
+-define(UXN_OPCS, #{
+    16#00 => op_brk,
+    16#20 => op_jci,
+    16#40 => op_jmi,
+    16#60 => op_jsi,
+    16#80 => op_lit,
+    16#A0 => op_lit,
+    16#C0 => op_lit,
+    16#E0 => op_lit,
 
--define(INC, 16#01).
--define(INC2, 16#21).
--define(INCR, 16#41).
--define(INC2R, 16#61).
--define(INCK, 16#81).
--define(INC2K, 16#A1).
--define(INCKR, 16#C1).
--define(INC2KR, 16#E1).
+    16#10 => op_ldz,
+    16#30 => op_ldz,
+    16#50 => op_ldz,
+    16#70 => op_ldz,
+    16#90 => op_ldz,
+    16#B0 => op_ldz,
+    16#D0 => op_ldz,
+    16#F0 => op_ldz,
 
--define(POP, 16#02).
--define(POP2, 16#22).
--define(POPR, 16#42).
--define(POP2R, 16#62).
--define(POPK, 16#82).
--define(POP2K, 16#A2).
--define(POPKR, 16#C2).
--define(POP2KR, 16#E2).
+    16#01 => op_inc, 16#11 => op_stz, 
+    16#21 => op_inc, 16#31 => op_stz,
+    16#41 => op_inc, 16#51 => op_stz,
+    16#61 => op_inc, 16#71 => op_stz,
+    16#81 => op_inc, 16#91 => op_stz,
+    16#A1 => op_inc, 16#B1 => op_stz,
+    16#C1 => op_inc, 16#D1 => op_stz,
+    16#E1 => op_inc, 16#F1 => op_stz,
 
--define(NIP, 16#03).
--define(NIP2, 16#23).
--define(NIPR, 16#43).
--define(NIP2R, 16#63).
--define(NIPK, 16#83).
--define(NIP2K, 16#A3).
--define(NIPKR, 16#C3).
--define(NIP2KR, 16#E3).
+    16#02 => op_pop, 16#12 => op_ldr,
+    16#22 => op_pop, 16#32 => op_ldr,
+    16#42 => op_pop, 16#52 => op_ldr,
+    16#62 => op_pop, 16#72 => op_ldr,
+    16#82 => op_pop, 16#92 => op_ldr,
+    16#A2 => op_pop, 16#B2 => op_ldr,
+    16#C2 => op_pop, 16#D2 => op_ldr,
+    16#E2 => op_pop, 16#F2 => op_ldr,
 
--define(SWP, 16#04).
--define(SWP2, 16#24).
--define(SWPR, 16#44).
--define(SWP2R, 16#64).
--define(SWPK, 16#84).
--define(SWP2K, 16#A4).
--define(SWPKR, 16#C4).
--define(SWP2KR, 16#E4).
+    16#03 => op_nip, 16#13 => op_str,
+    16#23 => op_nip, 16#33 => op_str,
+    16#43 => op_nip, 16#53 => op_str,
+    16#63 => op_nip, 16#73 => op_str,
+    16#83 => op_nip, 16#93 => op_str,
+    16#A3 => op_nip, 16#B3 => op_str,
+    16#C3 => op_nip, 16#D3 => op_str,
+    16#E3 => op_nip, 16#F3 => op_str,
 
--define(ROT, 16#05).
--define(ROT2, 16#25).
--define(ROTR, 16#45).
--define(ROT2R, 16#65).
--define(ROTK, 16#85).
--define(ROT2K, 16#A5).
--define(ROTKR, 16#C5).
--define(ROT2KR, 16#E5).
+    16#04 => op_swp, 16#14 => op_lda,
+    16#24 => op_swp, 16#34 => op_lda,
+    16#44 => op_swp, 16#54 => op_lda,
+    16#64 => op_swp, 16#74 => op_lda,
+    16#84 => op_swp, 16#94 => op_lda,
+    16#A4 => op_swp, 16#B4 => op_lda,
+    16#C4 => op_swp, 16#D4 => op_lda,
+    16#E4 => op_swp, 16#F4 => op_lda,
 
--define(DUP, 16#06).
--define(DUP2, 16#26).
--define(DUPR, 16#46).
--define(DUP2R, 16#66).
--define(DUPK, 16#86).
--define(DUP2K, 16#A6).
--define(DUPKR, 16#C6).
--define(DUP2KR, 16#E6).
+    16#05 => op_rot, 16#15 => op_sta,
+    16#25 => op_rot, 16#35 => op_sta,
+    16#45 => op_rot, 16#55 => op_sta,
+    16#65 => op_rot, 16#75 => op_sta,
+    16#85 => op_rot, 16#95 => op_sta,
+    16#A5 => op_rot, 16#B5 => op_sta,
+    16#C5 => op_rot, 16#D5 => op_sta,
+    16#E5 => op_rot, 16#F5 => op_sta,
 
--define(OVR, 16#07).
--define(OVR2, 16#27).
--define(OVRR, 16#47).
--define(OVR2R, 16#67).
--define(OVRK, 16#87).
--define(OVR2K, 16#A7).
--define(OVRKR, 16#C7).
--define(OVR2KR, 16#E7).
+    16#06 => op_dup, 16#16 => op_dei,
+    16#26 => op_dup, 16#36 => op_dei,
+    16#46 => op_dup, 16#56 => op_dei,
+    16#66 => op_dup, 16#76 => op_dei,
+    16#86 => op_dup, 16#96 => op_dei,
+    16#A6 => op_dup, 16#B6 => op_dei,
+    16#C6 => op_dup, 16#D6 => op_dei,
+    16#E6 => op_dup, 16#F6 => op_dei,
 
--define(EQU, 16#08).
--define(EQU2, 16#28).
--define(EQUR, 16#48).
--define(EQU2R, 16#68).
--define(EQUK, 16#88).
--define(EQU2K, 16#A8).
--define(EQUKR, 16#C8).
--define(EQU2KR, 16#E8).
+    16#07 => op_ovr, 16#17 => op_deo,
+    16#27 => op_ovr, 16#37 => op_deo,
+    16#47 => op_ovr, 16#57 => op_deo,
+    16#67 => op_ovr, 16#77 => op_deo,
+    16#87 => op_ovr, 16#97 => op_deo,
+    16#A7 => op_ovr, 16#B7 => op_deo,
+    16#C7 => op_ovr, 16#D7 => op_deo,
+    16#E7 => op_ovr, 16#F7 => op_deo,
+   
+    16#08 => op_equ, 16#18 => op_add,
+    16#28 => op_equ, 16#38 => op_add,
+    16#48 => op_equ, 16#58 => op_add,
+    16#68 => op_equ, 16#78 => op_add,
+    16#88 => op_equ, 16#98 => op_add,
+    16#A8 => op_equ, 16#B8 => op_add,
+    16#C8 => op_equ, 16#D8 => op_add,
+    16#E8 => op_equ, 16#F8 => op_add,
 
--define(NEQ, 16#09).
--define(NEQ2, 16#29).
--define(NEQR, 16#49).
--define(NEQ2R, 16#69).
--define(NEQK, 16#89).
--define(NEQ2K, 16#A9).
--define(NEQKR, 16#C9).
--define(NEQ2KR, 16#E9).
+    16#09 => op_neq, 16#19 => op_sub,
+    16#29 => op_neq, 16#39 => op_sub,
+    16#49 => op_neq, 16#59 => op_sub,
+    16#69 => op_neq, 16#79 => op_sub,
+    16#89 => op_neq, 16#99 => op_sub,
+    16#A9 => op_neq, 16#B9 => op_sub,
+    16#C9 => op_neq, 16#D9 => op_sub,
+    16#E9 => op_neq, 16#F9 => op_sub,
 
--define(GTH, 16#0A).
--define(GTH2, 16#2A).
--define(GTHR, 16#4A).
--define(GTH2R, 16#6A).
--define(GTHK, 16#8A).
--define(GTH2K, 16#AA).
--define(GTHKR, 16#CA).
--define(GTH2KR, 16#EA).
+    16#0A => op_gth, 16#1A => op_mul,
+    16#2A => op_gth, 16#3A => op_mul,
+    16#4A => op_gth, 16#5A => op_mul,
+    16#6A => op_gth, 16#7A => op_mul,
+    16#8A => op_gth, 16#9A => op_mul,
+    16#AA => op_gth, 16#BA => op_mul,
+    16#CA => op_gth, 16#DA => op_mul,
+    16#EA => op_gth, 16#FA => op_mul,
 
--define(LTH, 16#0B).
--define(LTH2, 16#2B).
--define(LTHR, 16#4B).
--define(LTH2R, 16#6B).
--define(LTHK, 16#8B).
--define(LTH2K, 16#AB).
--define(LTHKR, 16#CB).
--define(LTH2KR, 16#EB).
+    16#0B => op_lth, 16#1B => op_div,
+    16#2B => op_lth, 16#3B => op_div,
+    16#4B => op_lth, 16#5B => op_div,
+    16#6B => op_lth, 16#7B => op_div,
+    16#8B => op_lth, 16#9B => op_div,
+    16#AB => op_lth, 16#BB => op_div,
+    16#CB => op_lth, 16#DB => op_div,
+    16#EB => op_lth, 16#FB => op_div,
 
--define(JMP, 16#0C).
--define(JMP2, 16#2C).
--define(JMPR, 16#4C).
--define(JMP2R, 16#6C).
--define(JMPK, 16#8C).
--define(JMP2K, 16#AC).
--define(JMPKR, 16#CC).
--define(JMP2KR, 16#EC).
+    16#0C => op_jmp, 16#1C => op_and,
+    16#2C => op_jmp, 16#3C => op_and,
+    16#4C => op_jmp, 16#5C => op_and,
+    16#6C => op_jmp, 16#7C => op_and,
+    16#8C => op_jmp, 16#9C => op_and,
+    16#AC => op_jmp, 16#BC => op_and,
+    16#CC => op_jmp, 16#DC => op_and,
+    16#EC => op_jmp, 16#FC => op_and,
 
--define(JCN, 16#0D).
--define(JCN2, 16#2D).
--define(JCNR, 16#4D).
--define(JCN2R, 16#6D).
--define(JCNK, 16#8D).
--define(JCN2K, 16#AD).
--define(JCNKR, 16#CD).
--define(JCN2KR, 16#ED).
+    16#0D => op_jcn, 16#1D => op_ora,
+    16#2D => op_jcn, 16#3D => op_ora,
+    16#4D => op_jcn, 16#5D => op_ora,
+    16#6D => op_jcn, 16#7D => op_ora,
+    16#8D => op_jcn, 16#9D => op_ora,
+    16#AD => op_jcn, 16#BD => op_ora,
+    16#CD => op_jcn, 16#DD => op_ora,
+    16#ED => op_jcn, 16#FD => op_ora,
 
--define(JSR, 16#0E).
--define(JSR2, 16#2E).
--define(JSRR, 16#4E).
--define(JSR2R, 16#6E).
--define(JSRK, 16#8E).
--define(JSR2K, 16#AE).
--define(JSRKR, 16#CE).
--define(JSR2KR, 16#EE).
+    16#0E => op_jsr, 16#1E => op_eor,
+    16#2E => op_jsr, 16#3E => op_eor,
+    16#4E => op_jsr, 16#5E => op_eor,
+    16#6E => op_jsr, 16#7E => op_eor,
+    16#8E => op_jsr, 16#9E => op_eor,
+    16#AE => op_jsr, 16#BE => op_eor,
+    16#CE => op_jsr, 16#DE => op_eor,
+    16#EE => op_jsr, 16#FE => op_eor,
 
--define(LIT, 16#80).
--define(LIT2, 16#A0).
--define(LITR, 16#C0).
--define(LIT2R, 16#E0).
-
-%% Define helpers for working with opcodes
--define(IN(Op, List), lists:member(Op, List)).
-
--define(IS_INC(Op), Op == ?INC; Op == ?INC2; Op == ?INCR; Op == ?INC2R; Op == ?INCK; Op == ?INC2K; Op == ?INCKR; Op == ?INC2KR).
--define(IS_POP(Op), Op == ?POP; Op == ?POP2; Op == ?POPR; Op == ?POP2R; Op == ?POPK; Op == ?POP2K; Op == ?POPKR; Op == ?POP2KR).
--define(IS_NIP(Op), Op == ?NIP; Op == ?NIP2; Op == ?NIPR; Op == ?NIP2R; Op == ?NIPK; Op == ?NIP2K; Op == ?NIPKR; Op == ?NIP2KR).
--define(IS_SWP(Op), Op == ?SWP; Op == ?SWP2; Op == ?SWPR; Op == ?SWP2R; Op == ?SWPK; Op == ?SWP2K; Op == ?SWPKR; Op == ?SWP2KR).
--define(IS_ROT(Op), Op == ?ROT; Op == ?ROT2; Op == ?ROTR; Op == ?ROT2R; Op == ?ROTK; Op == ?ROT2K; Op == ?ROTKR; Op == ?ROT2KR).
--define(IS_DUP(Op), Op == ?DUP; Op == ?DUP2; Op == ?DUPR; Op == ?DUP2R; Op == ?DUPK; Op == ?DUP2K; Op == ?DUPKR; Op == ?DUP2KR).
--define(IS_OVR(Op), Op == ?OVR; Op == ?OVR2; Op == ?OVRR; Op == ?OVR2R; Op == ?OVRK; Op == ?OVR2K; Op == ?OVRKR; Op == ?OVR2KR).
--define(IS_EQU(Op), Op == ?EQU; Op == ?EQU2; Op == ?EQUR; Op == ?EQU2R; Op == ?EQUK; Op == ?EQU2K; Op == ?EQUKR; Op == ?EQU2KR).
--define(IS_NEQ(Op), Op == ?NEQ; Op == ?NEQ2; Op == ?NEQR; Op == ?NEQ2R; Op == ?NEQK; Op == ?NEQ2K; Op == ?NEQKR; Op == ?NEQ2KR).
--define(IS_GTH(Op), Op == ?GTH; Op == ?GTH2; Op == ?GTHR; Op == ?GTH2R; Op == ?GTHK; Op == ?GTH2K; Op == ?GTHKR; Op == ?GTH2KR).
--define(IS_LTH(Op), Op == ?LTH; Op == ?LTH2; Op == ?LTHR; Op == ?LTH2R; Op == ?LTHK; Op == ?LTH2K; Op == ?LTHKR; Op == ?LTH2KR).
--define(IS_JMP(Op), Op == ?JMP; Op == ?JMP2; Op == ?JMPR; Op == ?JMP2R; Op == ?JMPK; Op == ?JMP2K; Op == ?JMPKR; Op == ?JMP2KR).
--define(IS_JCN(Op), Op == ?JCN; Op == ?JCN2; Op == ?JCNR; Op == ?JCN2R; Op == ?JCNK; Op == ?JCN2K; Op == ?JCNKR; Op == ?JCN2KR).
--define(IS_JSR(Op), Op == ?JSR; Op == ?JSR2; Op == ?JSRR; Op == ?JSR2R; Op == ?JSRK; Op == ?JSR2K; Op == ?JSRKR; Op == ?JSR2KR).
-
--define(IS_LIT(Op), Op == ?LIT; Op == ?LIT2; Op == ?LITR; Op == ?LIT2R).
+    16#0F => op_sth, 16#1F => op_sft,
+    16#2F => op_sth, 16#3F => op_sft,
+    16#4F => op_sth, 16#5F => op_sft,
+    16#6F => op_sth, 16#7F => op_sft,
+    16#8F => op_sth, 16#9F => op_sft,
+    16#AF => op_sth, 16#BF => op_sft,
+    16#CF => op_sth, 16#DF => op_sft,
+    16#EF => op_sth, 16#FF => op_sft
+}).

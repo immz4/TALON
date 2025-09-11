@@ -124,22 +124,22 @@ load_rom_into_ram([Byte | Rest], Offset, Ram) ->
       | {error, wrong_opcode}.
 -spec execute_opcode(Opcode :: pos_integer(), Args :: args(), State :: uxn_state()) -> execute_ret().
 execute_opcode(Opcode, Args, State) ->
-    if
-        Opcode == ?BRK  -> {halt, State};
-        ?IS_LIT(Opcode) -> uxn_opcodes:lit(Opcode, State);
-        ?IS_INC(Opcode) -> uxn_opcodes:inc(Args, State);
-        ?IS_POP(Opcode) -> uxn_opcodes:pop(Args, State);
-        ?IS_NIP(Opcode) -> uxn_opcodes:nip(Args, State);
-        ?IS_SWP(Opcode) -> uxn_opcodes:swp(Args, State);
-        ?IS_ROT(Opcode) -> uxn_opcodes:rot(Args, State);
-        ?IS_DUP(Opcode) -> uxn_opcodes:dup(Args, State);
-        ?IS_OVR(Opcode) -> uxn_opcodes:ovr(Args, State);
-        ?IS_EQU(Opcode) -> uxn_opcodes:equ(Args, State);
-        ?IS_NEQ(Opcode) -> uxn_opcodes:neq(Args, State);
-        ?IS_GTH(Opcode) -> uxn_opcodes:gth(Args, State);
-        ?IS_LTH(Opcode) -> uxn_opcodes:lth(Args, State);
-        ?IS_JMP(Opcode) -> uxn_opcodes:jmp(Args, State);
-        ?IS_JCN(Opcode) -> uxn_opcodes:jcn(Args, State);
-        ?IS_JSR(Opcode) -> uxn_opcodes:jsr(Args, State);
-        true            -> {error, wrong_opcode}
+    case map_get(Opcode, ?UXN_OPCS) of
+        op_brk -> {halt, State};
+        op_lit -> uxn_opcodes:lit(Opcode, State);
+        op_inc -> uxn_opcodes:inc(Args, State);
+        op_pop -> uxn_opcodes:pop(Args, State);
+        op_nip -> uxn_opcodes:nip(Args, State);
+        op_swp -> uxn_opcodes:swp(Args, State);
+        op_rot -> uxn_opcodes:rot(Args, State);
+        op_dup -> uxn_opcodes:dup(Args, State);
+        op_ovr -> uxn_opcodes:ovr(Args, State);
+        op_equ -> uxn_opcodes:equ(Args, State);
+        op_neq -> uxn_opcodes:neq(Args, State);
+        op_gth -> uxn_opcodes:gth(Args, State);
+        op_lth -> uxn_opcodes:lth(Args, State);
+        op_jmp -> uxn_opcodes:jmp(Args, State);
+        op_jcn -> uxn_opcodes:jcn(Args, State);
+        op_jsr -> uxn_opcodes:jsr(Args, State);
+        _      -> {error, wrong_opcode}
     end.
