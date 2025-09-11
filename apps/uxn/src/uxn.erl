@@ -123,17 +123,23 @@ load_rom_into_ram([Byte | Rest], Offset, Ram) ->
       | {continue, State :: uxn_state()}
       | {error, wrong_opcode}.
 -spec execute_opcode(Opcode :: pos_integer(), Args :: args(), State :: uxn_state()) -> execute_ret().
-execute_opcode(?BRK, _, State) -> {halt, State};
-execute_opcode(Opcode, _, State) when ?IS_LIT(Opcode) -> uxn_opcodes:lit(Opcode, State);
-execute_opcode(Opcode, Args, State) when ?IS_INC(Opcode) -> uxn_opcodes:inc(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_POP(Opcode) -> uxn_opcodes:pop(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_NIP(Opcode) -> uxn_opcodes:nip(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_SWP(Opcode) -> uxn_opcodes:swp(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_ROT(Opcode) -> uxn_opcodes:rot(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_DUP(Opcode) -> uxn_opcodes:dup(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_OVR(Opcode) -> uxn_opcodes:ovr(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_EQU(Opcode) -> uxn_opcodes:equ(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_NEQ(Opcode) -> uxn_opcodes:neq(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_GTH(Opcode) -> uxn_opcodes:gth(Args, State);
-execute_opcode(Opcode, Args, State) when ?IS_LTH(Opcode) -> uxn_opcodes:lth(Args, State);
-execute_opcode(_, _, _) -> {error, wrong_opcode}.
+execute_opcode(Opcode, Args, State) ->
+    if
+        Opcode == ?BRK  -> {halt, State};
+        ?IS_LIT(Opcode) -> uxn_opcodes:lit(Opcode, State);
+        ?IS_INC(Opcode) -> uxn_opcodes:inc(Args, State);
+        ?IS_POP(Opcode) -> uxn_opcodes:pop(Args, State);
+        ?IS_NIP(Opcode) -> uxn_opcodes:nip(Args, State);
+        ?IS_SWP(Opcode) -> uxn_opcodes:swp(Args, State);
+        ?IS_ROT(Opcode) -> uxn_opcodes:rot(Args, State);
+        ?IS_DUP(Opcode) -> uxn_opcodes:dup(Args, State);
+        ?IS_OVR(Opcode) -> uxn_opcodes:ovr(Args, State);
+        ?IS_EQU(Opcode) -> uxn_opcodes:equ(Args, State);
+        ?IS_NEQ(Opcode) -> uxn_opcodes:neq(Args, State);
+        ?IS_GTH(Opcode) -> uxn_opcodes:gth(Args, State);
+        ?IS_LTH(Opcode) -> uxn_opcodes:lth(Args, State);
+        ?IS_JMP(Opcode) -> uxn_opcodes:jmp(Args, State);
+        ?IS_JCN(Opcode) -> uxn_opcodes:jcn(Args, State);
+        ?IS_JSR(Opcode) -> uxn_opcodes:jsr(Args, State);
+        true            -> {error, wrong_opcode}
+    end.

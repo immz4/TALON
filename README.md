@@ -17,7 +17,7 @@
 
 ## Project Status
 
-- Uxn - 8 out of 32 opcodes are implemented
+- Uxn - 15 out of 32 opcodes are implemented
 - Varvara - TBD
 
 ## Build

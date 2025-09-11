@@ -137,6 +137,33 @@
 -define(LTHKR, 16#CB).
 -define(LTH2KR, 16#EB).
 
+-define(JMP, 16#0C).
+-define(JMP2, 16#2C).
+-define(JMPR, 16#4C).
+-define(JMP2R, 16#6C).
+-define(JMPK, 16#8C).
+-define(JMP2K, 16#AC).
+-define(JMPKR, 16#CC).
+-define(JMP2KR, 16#EC).
+
+-define(JCN, 16#0D).
+-define(JCN2, 16#2D).
+-define(JCNR, 16#4D).
+-define(JCN2R, 16#6D).
+-define(JCNK, 16#8D).
+-define(JCN2K, 16#AD).
+-define(JCNKR, 16#CD).
+-define(JCN2KR, 16#ED).
+
+-define(JSR, 16#0E).
+-define(JSR2, 16#2E).
+-define(JSRR, 16#4E).
+-define(JSR2R, 16#6E).
+-define(JSRK, 16#8E).
+-define(JSR2K, 16#AE).
+-define(JSRKR, 16#CE).
+-define(JSR2KR, 16#EE).
+
 -define(LIT, 16#80).
 -define(LIT2, 16#A0).
 -define(LITR, 16#C0).
@@ -156,5 +183,8 @@
 -define(IS_NEQ(Op), Op == ?NEQ; Op == ?NEQ2; Op == ?NEQR; Op == ?NEQ2R; Op == ?NEQK; Op == ?NEQ2K; Op == ?NEQKR; Op == ?NEQ2KR).
 -define(IS_GTH(Op), Op == ?GTH; Op == ?GTH2; Op == ?GTHR; Op == ?GTH2R; Op == ?GTHK; Op == ?GTH2K; Op == ?GTHKR; Op == ?GTH2KR).
 -define(IS_LTH(Op), Op == ?LTH; Op == ?LTH2; Op == ?LTHR; Op == ?LTH2R; Op == ?LTHK; Op == ?LTH2K; Op == ?LTHKR; Op == ?LTH2KR).
+-define(IS_JMP(Op), Op == ?JMP; Op == ?JMP2; Op == ?JMPR; Op == ?JMP2R; Op == ?JMPK; Op == ?JMP2K; Op == ?JMPKR; Op == ?JMP2KR).
+-define(IS_JCN(Op), Op == ?JCN; Op == ?JCN2; Op == ?JCNR; Op == ?JCN2R; Op == ?JCNK; Op == ?JCN2K; Op == ?JCNKR; Op == ?JCN2KR).
+-define(IS_JSR(Op), Op == ?JSR; Op == ?JSR2; Op == ?JSRR; Op == ?JSR2R; Op == ?JSRK; Op == ?JSR2K; Op == ?JSRKR; Op == ?JSR2KR).
 
 -define(IS_LIT(Op), Op == ?LIT; Op == ?LIT2; Op == ?LITR; Op == ?LIT2R).

@@ -27,7 +27,10 @@
     equ/2,
     neq/2,
     gth/2,
-    lth/2
+    lth/2,
+    jmp/2,
+    jcn/2,
+    jsr/2
 ]).
 
 -spec lit(Opcode :: pos_integer(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
@@ -236,5 +239,93 @@ lth(Args, State) ->
             [_, Val3, _, Val1] = uxn_stack:get(Stack, State, 4, 4),
             NewVal = uxn_stack:bool_to_num(Val1 < Val3),
             uxn_stack:push(Stack, [NewVal], State)
+    end,
+    {continue, FinalState}.
+
+-spec jmp(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+jmp(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Val1], UpdatedState} = uxn_stack:pop(Stack, State, 1),
+            UpdatedState#uxn_state{pc = State#uxn_state.pc + Val1};
+        {0, 1, Stack} ->
+            {[Byte1, Byte2], UpdatedState} = uxn_stack:pop(Stack, State, 2),
+            Address = uxn_stack:byte_to_short({Byte1, Byte2}),
+            UpdatedState#uxn_state{pc = Address};
+        {1, 0, Stack} ->
+            [Val1] = uxn_stack:get(Stack, State, 1, 1),
+            State#uxn_state{pc = State#uxn_state.pc + Val1};
+        {1, 1, Stack} ->
+            [Byte2, Byte1] = uxn_stack:get(Stack, State, 2, 2),
+            Address = uxn_stack:byte_to_short({Byte1, Byte2}),
+            State#uxn_state{pc = Address}
+    end,
+    {continue, FinalState}.
+
+-spec jcn(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+jcn(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Cond, Val1], UpdatedState} = uxn_stack:pop(Stack, State, 2),
+            case Cond > 0 of
+                true -> UpdatedState#uxn_state{pc = State#uxn_state.pc + Val1};
+                false -> UpdatedState
+            end;
+        {0, 1, Stack} ->
+            {[Cond, Byte1, Byte2], UpdatedState} = uxn_stack:pop(Stack, State, 3),
+            Address = uxn_stack:byte_to_short({Byte1, Byte2}),
+            case Cond > 0 of
+                true -> UpdatedState#uxn_state{pc = Address};
+                false -> UpdatedState
+            end;
+        {1, 0, Stack} ->
+            [Val1, Cond] = uxn_stack:get(Stack, State, 2, 2),
+            case Cond > 0 of
+                true -> State#uxn_state{pc = State#uxn_state.pc + Val1};
+                false -> State
+            end;
+        {1, 1, Stack} ->
+            [Byte2, Byte1, Cond] = uxn_stack:get(Stack, State, 3, 3),
+            Address = uxn_stack:byte_to_short({Byte1, Byte2}),
+            case Cond > 0 of
+                true -> State#uxn_state{pc = Address};
+                false -> State
+            end
+    end,
+    {continue, FinalState}.
+
+-spec jsr(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+jsr(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Val1], UpdatedState} = uxn_stack:pop(Stack, State, 1),
+            uxn_stack:push(
+                Stack,
+                [State#uxn_state.pc],
+          UpdatedState#uxn_state{pc = State#uxn_state.pc + Val1}
+            );
+        {0, 1, Stack} ->
+            {[Byte1, Byte2], UpdatedState} = uxn_stack:pop(Stack, State, 2),
+            Address = uxn_stack:byte_to_short({Byte1, Byte2}),
+            uxn_stack:push(
+                Stack,
+                [State#uxn_state.pc],
+          UpdatedState#uxn_state{pc = Address}
+            );
+        {1, 0, Stack} ->
+            [Val1] = uxn_stack:get(Stack, State, 1, 1),
+            uxn_stack:push(
+                Stack,
+                [State#uxn_state.pc],
+          State#uxn_state{pc = State#uxn_state.pc + Val1}
+            );
+        {1, 1, Stack} ->
+            [Byte2, Byte1] = uxn_stack:get(Stack, State, 2, 2),
+            Address = uxn_stack:byte_to_short({Byte1, Byte2}),
+            uxn_stack:push(
+                Stack,
+                [State#uxn_state.pc],
+          State#uxn_state{pc = Address}
+            )
     end,
     {continue, FinalState}.
