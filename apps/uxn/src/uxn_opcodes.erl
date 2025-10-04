@@ -30,7 +30,8 @@
     lth/2,
     jmp/2,
     jcn/2,
-    jsr/2
+    jsr/2,
+    sth/2
 ]).
 
 -spec lit(Opcode :: pos_integer(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
@@ -65,9 +66,9 @@ pop(Args, State) ->
     {continue, FinalState}.
 
 -spec nip(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
-nip(Args, State) -> 
+nip(Args, State) ->
     FinalState = case Args of
-        {0, 0, Stack} -> 
+        {0, 0, Stack} ->
             {[Val1 | _], UpdatedState} = uxn_stack:pop(Stack, State, 2),
             uxn_stack:push(Stack, [Val1], UpdatedState);
         {0, 1, Stack} ->
@@ -167,7 +168,7 @@ equ(Args, State) ->
             uxn_stack:push(Stack, [NewVal], UpdatedState);
         {1, 0, Stack} ->
             [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
-            NewVal = uxn_stack:bool_to_num(Val1 == Val2),        
+            NewVal = uxn_stack:bool_to_num(Val1 == Val2),
             uxn_stack:push(Stack, [NewVal], State);
         {1, 1, Stack} ->
             [Val4, Val3, Val2, Val1] = uxn_stack:get(Stack, State, 4, 4),
@@ -189,7 +190,7 @@ neq(Args, State) ->
             uxn_stack:push(Stack, [NewVal], UpdatedState);
         {1, 0, Stack} ->
             [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
-            NewVal = uxn_stack:bool_to_num(Val1 =/= Val2),        
+            NewVal = uxn_stack:bool_to_num(Val1 =/= Val2),
             uxn_stack:push(Stack, [NewVal], State);
         {1, 1, Stack} ->
             [Val4, Val3, Val2, Val1] = uxn_stack:get(Stack, State, 4, 4),
@@ -211,7 +212,7 @@ gth(Args, State) ->
             uxn_stack:push(Stack, [NewVal], UpdatedState);
         {1, 0, Stack} ->
             [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
-            NewVal = uxn_stack:bool_to_num(Val1 > Val2),        
+            NewVal = uxn_stack:bool_to_num(Val1 > Val2),
             uxn_stack:push(Stack, [NewVal], State);
         {1, 1, Stack} ->
             [_, Val3, _, Val1] = uxn_stack:get(Stack, State, 4, 4),
@@ -233,7 +234,7 @@ lth(Args, State) ->
             uxn_stack:push(Stack, [NewVal], UpdatedState);
         {1, 0, Stack} ->
             [Val2, Val1] = uxn_stack:get(Stack, State, 2, 2),
-            NewVal = uxn_stack:bool_to_num(Val1 < Val2),        
+            NewVal = uxn_stack:bool_to_num(Val1 < Val2),
             uxn_stack:push(Stack, [NewVal], State);
         {1, 1, Stack} ->
             [_, Val3, _, Val1] = uxn_stack:get(Stack, State, 4, 4),
@@ -327,5 +328,23 @@ jsr(Args, State) ->
                 [State#uxn_state.pc],
           State#uxn_state{pc = Address}
             )
+    end,
+    {continue, FinalState}.
+
+-spec sth(Args :: args(), State :: uxn_state()) -> {continue, State :: uxn_state()}.
+sth(Args, State) ->
+    FinalState = case Args of
+        {0, 0, Stack} ->
+            {[Val1], State1} = uxn_stack:pop(Stack, State, 1),
+            uxn_stack:push(uxn_stack:opposite(Stack), [Val1], State1);
+        {0, 1, Stack} ->
+            {[Val1, Val2], State1} = uxn_stack:pop(Stack, State, 2),
+            uxn_stack:push(uxn_stack:opposite(Stack), [Val1, Val2], State1);
+        {1, 0, Stack} ->
+            [Val1] = uxn_stack:get(Stack, State, 1, 1),
+            uxn_stack:push(uxn_stack:opposite(Stack), [Val1], State);
+        {1, 1, Stack} ->
+            [Val1, Val2] = uxn_stack:get(Stack, State, 2, 2),
+            uxn_stack:push(uxn_stack:opposite(Stack), [Val1, Val2], State)
     end,
     {continue, FinalState}.

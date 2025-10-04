@@ -63,7 +63,7 @@ code_change(_Vsn, State, Data, _Extra) -> {ok, State, Data}.
 -type load_type() ::
         {load_bytecode, nonempty_binary()}
       | {load_rom_file, nonempty_string()}.
--type ready_ret() :: 
+-type ready_ret() ::
         {next_state, running, uxn_state(), [gen_statem:reply_action()]}
       | {keep_state, uxn_state(), [gen_statem:reply_action()]}
       | {keep_state_and_data, [gen_statem:reply_action()]}.
@@ -87,7 +87,7 @@ ready({call, From}, get_state, State) -> {keep_state_and_data, [{reply, From, St
 ready({call, From}, _Msg, State) -> {keep_state, State, [{reply, From, {error, non_loaded}}]}.
 
 %% State: running - executing UXN bytecode
--type step_ret() :: 
+-type step_ret() ::
         {next_state, halted, uxn_state(), [gen_statem:reply_action()]}
       | {keep_state, uxn_state(), [gen_statem:reply_action()]}
       | {keep_state_and_data, [gen_statem:reply_action()]}.
@@ -97,7 +97,7 @@ running({call, From}, step, State) ->
     PC = State#uxn_state.pc,
     Opcode = maps:get(PC, State#uxn_state.ram),
     <<ModeK:1, ModeR:1, Mode2:1, _Rest:5>> = <<Opcode>>,
-    Stack = case ModeR of 
+    Stack = case ModeR of
         0 -> wst;
         1 -> rst
     end,
@@ -141,5 +141,6 @@ execute_opcode(Opcode, Args, State) ->
         op_jmp -> uxn_opcodes:jmp(Args, State);
         op_jcn -> uxn_opcodes:jcn(Args, State);
         op_jsr -> uxn_opcodes:jsr(Args, State);
+        op_sth -> uxn_opcodes:sth(Args, State);
         _      -> {error, wrong_opcode}
     end.

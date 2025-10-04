@@ -16,7 +16,10 @@
 -module(uxn_stack).
 -include("uxn.hrl").
 -export([pop/3, push/3, get/3, get/4, copy/3]).
--export([byte_to_short/1, short_to_byte/1, bool_to_num/1]).
+-export([read/3]).
+-export([byte_to_short/1, short_to_byte/1, bool_to_num/1, opposite/1]).
+
+%% Utility functions
 
 -spec byte_to_short({ByteHigh :: integer(), ByteLow :: integer()}) -> integer().
 byte_to_short({ByteHigh, ByteLow}) -> (ByteHigh bsl 8) bor ByteLow.
@@ -27,6 +30,30 @@ short_to_byte(Short) -> {Short bsr 8, Short band 16#FF}.
 -spec bool_to_num(Boolean :: boolean()) -> 1 | 0.
 bool_to_num(true) -> 1;
 bool_to_num(false) -> 0.
+
+-spec opposite(wst) -> rst;
+              (rst) -> wst.
+opposite(wst) -> rst;
+opposite(rst) -> wst.
+
+-spec slice(Arr :: array:array(integer()), Last :: pos_integer()) -> [integer()].
+-spec slice(Arr :: array:array(integer()), Start :: pos_integer(), Last :: pos_integer()) -> [integer()].
+slice(Arr, Last) -> do_slice(Arr, 0, Last, []).
+slice(Arr, Start, Last) -> do_slice(Arr, Start, Last, []).
+
+-compile({inline, [do_slice/4]}).
+-spec do_slice(
+    Arr :: array:array(integer()),
+    Start :: pos_integer(),
+    Last :: pos_integer(),
+    Acc :: [integer()]
+) -> [integer()].
+do_slice(_arr, I, I, Acc) -> Acc;
+do_slice(Arr, Start, I, Acc) ->
+    New_acc = [array:get(I, Arr) | Acc],
+    do_slice(Arr, Start, I - 1, New_acc).
+
+%% Stack functions
 
 -spec pop(Stack :: stack(),
           State :: uxn_state(),
@@ -71,7 +98,7 @@ push(rst, [Value | Rest], State) ->
     Dat = maps:get(dat, Rst),
     NewDat = Dat#{Ptr => Value},
     NewRst = Rst#{dat => NewDat, ptr => Ptr + 1},
-    push(wst, Rest, State#uxn_state{rst = NewRst}).
+    push(rst, Rest, State#uxn_state{rst = NewRst}).
 
 -spec get(Stack :: stack(),
           State :: uxn_state(),
@@ -91,7 +118,7 @@ get(rst, State, Offset, Amount, Values) ->
     Ptr = maps:get(ptr, Rst),
     Dat = maps:get(dat, Rst),
     Value = maps:get(Ptr - Offset, Dat),
-    get(rst, State, Offset - 1, Amount - 1, Values ++ [Value]). 
+    get(rst, State, Offset - 1, Amount - 1, Values ++ [Value]).
 
 -spec get(Stack :: stack(),
           State :: uxn_state(),
@@ -105,12 +132,12 @@ get(Stack, State, Offset) -> get(Stack, State, Offset, 1, []).
 
 -spec copy(Destination :: {ram, stack()}, State :: uxn_state(), Amount :: pos_integer()) -> uxn_state().
 copy(_, State, 0) -> State;
-copy({ram, wst}, State, Amount) -> 
+copy({ram, wst}, State, Amount) ->
     PC = State#uxn_state.pc,
     Value = maps:get(PC, State#uxn_state.ram),
     UpdatedState = push(wst, [Value], State),
     copy({ram, wst}, UpdatedState#uxn_state{pc = PC + 1}, Amount - 1);
-copy({ram, rst}, State, Amount) -> 
+copy({ram, rst}, State, Amount) ->
     PC = State#uxn_state.pc,
     Value = maps:get(PC, State#uxn_state.ram),
     UpdatedState = push(rst, [Value], State),
