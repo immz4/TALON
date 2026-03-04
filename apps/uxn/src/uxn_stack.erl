@@ -16,7 +16,6 @@
 -module(uxn_stack).
 -include("uxn.hrl").
 -export([pop/3, push/3, get/3, get/4, copy/3]).
--export([read/3]).
 -export([byte_to_short/1, short_to_byte/1, bool_to_num/1, opposite/1]).
 
 %% Utility functions
@@ -53,92 +52,68 @@ do_slice(Arr, Start, I, Acc) ->
     New_acc = [array:get(I, Arr) | Acc],
     do_slice(Arr, Start, I - 1, New_acc).
 
+-spec get_stack(stack(), uxn_state()) -> {array:array(integer()), non_neg_integer()}.
+get_stack(wst, #uxn_state{wst = {Dat, Ptr}}) -> {Dat, Ptr};
+get_stack(rst, #uxn_state{rst = {Dat, Ptr}}) -> {Dat, Ptr}.
+
+-spec set_stack(stack(), array:array(integer()), non_neg_integer(), uxn_state()) -> uxn_state().
+set_stack(wst, Dat, Ptr, State) -> State#uxn_state{wst = {Dat, Ptr}};
+set_stack(rst, Dat, Ptr, State) -> State#uxn_state{rst = {Dat, Ptr}}.
+
 %% Stack functions
 
--spec pop(Stack :: stack(),
+-spec pop(Stack :: stack(), State :: uxn_state(), Amount :: pos_integer()) ->
+            {Values :: [pos_integer()], State :: uxn_state()}.
+pop(Stack, State, Amount) -> do_pop(Stack, State, Amount, []).
+
+-spec do_pop(Stack :: stack(),
           State :: uxn_state(),
           Amount :: pos_integer(),
           Values :: [pos_integer()]) ->
              {Values :: [pos_integer()], State :: uxn_state()}.
-pop(_, State, 0, Values) -> {Values, State};
-pop(wst, State, Amount, Values) ->
-    Wst = State#uxn_state.wst,
-    Ptr = maps:get(ptr, Wst),
-    Dat = maps:get(dat, Wst),
-    Value = maps:get(Ptr - 1, Dat),
-    NewDat = maps:remove(Ptr - 1, Dat),
-    NewWst = Wst#{dat => NewDat, ptr => Ptr - 1},
-    pop(wst, State#uxn_state{wst = NewWst}, Amount - 1, [Value | Values]);
-pop(rst, State, Amount, Values) ->
-    Rst = State#uxn_state.rst,
-    Ptr = maps:get(ptr, Rst),
-    Dat = maps:get(dat, Rst),
-    Value = maps:get(Ptr - 1, Dat),
-    NewDat = maps:remove(Ptr - 1, Dat),
-    NewRst = Rst#{dat => NewDat, ptr => Ptr - 1},
-    pop(rst, State#uxn_state{rst = NewRst}, Amount - 1, [Value | Values]).
-
--spec pop(Stack :: stack(), State :: uxn_state(), Amount :: pos_integer()) ->
-            {Values :: [pos_integer()], State :: uxn_state()}.
-pop(Stack, State, Amount) -> pop(Stack, State, Amount, []).
+do_pop(_, State, 0, Values) -> {Values, State};
+do_pop(Stack, State, Amount, Values) ->
+    {Dat, Ptr} = get_stack(Stack, State),
+    Value = array:get(Ptr - 1, Dat),
+    NewDat = array:set(Ptr - 1, 0, Dat),
+    NewState = set_stack(Stack, NewDat, Ptr - 1, State),
+    do_pop(wst, NewState, Amount - 1, [Value | Values]).
 
 -spec push(Stack :: stack(), Values :: [], State :: uxn_state()) -> uxn_state();
           (Stack :: stack(), Values :: list(integer()), State :: uxn_state()) -> uxn_state().
 push(_, [], State) -> State;
-push(wst, [Value | Rest], State) ->
-    Wst = State#uxn_state.wst,
-    Ptr = maps:get(ptr, Wst),
-    Dat = maps:get(dat, Wst),
-    NewDat = Dat#{Ptr => Value},
-    NewWst = Wst#{dat => NewDat, ptr => Ptr + 1},
-    push(wst, Rest, State#uxn_state{wst = NewWst});
-push(rst, [Value | Rest], State) ->
-    Rst = State#uxn_state.rst,
-    Ptr = maps:get(ptr, Rst),
-    Dat = maps:get(dat, Rst),
-    NewDat = Dat#{Ptr => Value},
-    NewRst = Rst#{dat => NewDat, ptr => Ptr + 1},
-    push(rst, Rest, State#uxn_state{rst = NewRst}).
-
--spec get(Stack :: stack(),
-          State :: uxn_state(),
-          Offset :: integer(),
-          Amount :: pos_integer(),
-          Values :: [pos_integer()]) ->
-             [pos_integer()].
-get(_, _, _, 0, Values) -> Values;
-get(wst, State, Offset, Amount, Values) ->
-    Wst = State#uxn_state.wst,
-    Ptr = maps:get(ptr, Wst),
-    Dat = maps:get(dat, Wst),
-    Value = maps:get(Ptr - Offset, Dat),
-    get(wst, State, Offset - 1, Amount - 1, Values ++ [Value]);
-get(rst, State, Offset, Amount, Values) ->
-    Rst = State#uxn_state.rst,
-    Ptr = maps:get(ptr, Rst),
-    Dat = maps:get(dat, Rst),
-    Value = maps:get(Ptr - Offset, Dat),
-    get(rst, State, Offset - 1, Amount - 1, Values ++ [Value]).
+push(Stack, [Value | Rest], State) ->
+    {Dat, Ptr} = get_stack(Stack, State),
+    NewDat = array:set(Ptr, Value, Dat),
+    NewState = set_stack(Stack, NewDat, Ptr + 1, State),
+    push(wst, Rest, NewState).
 
 -spec get(Stack :: stack(),
           State :: uxn_state(),
           Offset :: integer(),
           Amount :: pos_integer()) ->
              [pos_integer()].
-get(Stack, State, Offset, Amount) -> get(Stack, State, Offset, Amount, []).
+get(Stack, State, Offset, Amount) -> do_get(Stack, State, Offset, Amount, []).
 
 -spec get(Stack :: stack(), State :: uxn_state(), Offset :: integer()) -> list(pos_integer()).
-get(Stack, State, Offset) -> get(Stack, State, Offset, 1, []).
+get(Stack, State, Offset) -> do_get(Stack, State, Offset, 1, []).
+
+-spec do_get(Stack :: stack(),
+          State :: uxn_state(),
+          Offset :: integer(),
+          Amount :: pos_integer(),
+          Values :: [pos_integer()]) ->
+             [pos_integer()].
+do_get(_, _, _, 0, Values) -> Values;
+do_get(Stack, State, Offset, Amount, Values) ->
+    {Dat, Ptr} = get_stack(Stack, State),
+    Value = array:get(Ptr - Offset, Dat),
+    do_get(Stack, State, Offset - 1, Amount - 1, Values ++ [Value]).
 
 -spec copy(Destination :: {ram, stack()}, State :: uxn_state(), Amount :: pos_integer()) -> uxn_state().
 copy(_, State, 0) -> State;
-copy({ram, wst}, State, Amount) ->
+copy({ram, Stack}, State, Amount) ->
     PC = State#uxn_state.pc,
-    Value = maps:get(PC, State#uxn_state.ram),
-    UpdatedState = push(wst, [Value], State),
-    copy({ram, wst}, UpdatedState#uxn_state{pc = PC + 1}, Amount - 1);
-copy({ram, rst}, State, Amount) ->
-    PC = State#uxn_state.pc,
-    Value = maps:get(PC, State#uxn_state.ram),
-    UpdatedState = push(rst, [Value], State),
-    copy({ram, wst}, UpdatedState#uxn_state{pc = PC + 1}, Amount - 1).
+    Value = array:get(PC, State#uxn_state.ram),
+    UpdatedState = push(Stack, [Value], State),
+    copy({ram, Stack}, UpdatedState#uxn_state{pc = PC + 1}, Amount - 1).

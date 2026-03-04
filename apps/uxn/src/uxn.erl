@@ -45,10 +45,10 @@ get_state() -> gen_statem:call(?MODULE, get_state).
 init([]) ->
     process_flag(trap_exit, true),
     Uxn = #uxn_state{
-        ram = #{},
-        dev = #{},
-        wst = #{dat => #{}, ptr => 0},
-        rst = #{dat => #{}, ptr => 0}
+        ram = array:new(65536),
+        dev = array:new(256),
+        wst = {array:new(256), 0},
+        rst = {array:new(256), 0}
     },
     % debugger:start(),
     {ok, ready, Uxn}.
@@ -95,7 +95,7 @@ ready({call, From}, _Msg, State) -> {keep_state, State, [{reply, From, {error, n
              (Event :: {call, gen_statem:from()}, get_state, uxn_state()) -> step_ret().
 running({call, From}, step, State) ->
     PC = State#uxn_state.pc,
-    Opcode = maps:get(PC, State#uxn_state.ram),
+    Opcode = array:get(PC, State#uxn_state.ram),
     <<ModeK:1, ModeR:1, Mode2:1, _Rest:5>> = <<Opcode>>,
     Stack = case ModeR of
         0 -> wst;
@@ -111,10 +111,10 @@ running({call, From}, step, State) ->
     end;
 running({call, From}, get_state, State) -> {keep_state_and_data, [{reply, From, State}]}.
 
--spec load_rom_into_ram(Rom :: list(integer()), Offset :: pos_integer(), Ram :: map()) -> Ram :: map().
+-spec load_rom_into_ram(Rom :: list(integer()), Offset :: pos_integer(), Ram :: array:array(integer())) -> Ram :: array:array(integer()).
 load_rom_into_ram([], _, Ram) -> Ram;
 load_rom_into_ram([Byte | Rest], Offset, Ram) ->
-    NewRam = Ram#{Offset => Byte},
+    NewRam = array:set(Offset, Byte, Ram),
     load_rom_into_ram(Rest, Offset + 1, NewRam).
 
 %% Opcodes

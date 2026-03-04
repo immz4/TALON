@@ -13,13 +13,13 @@
 %% limitations under the License.
 
 -record(uxn_state, {
-    pc = 16#0100,                    % Program counter
-    ram = #{},                       % RAM (64KB)
-    dev = #{},                       % Device memory (256 bytes)
-    wst = #{dat => #{}, ptr => 0},   % Working stack
-    rst = #{dat => #{}, ptr => 0},   % Return stack
-    console_vector = 0,              % Console interrupt vector
-    step_count = 0                   % Step counter for debugging
+    pc = 16#0100,                             % Program counter
+    ram = array:new(65536),                   % RAM (64KB)
+    dev = array:new(256),                     % Device memory (256 bytes)
+    wst = {array:new(256), 0},                % Working stack
+    rst = {array:new(256), 0},                % Return stack
+    console_vector = 0,                       % Console interrupt vector
+    step_count = 0                            % Step counter for debugging
 }).
 
 -type uxn_state() :: #uxn_state{}.
@@ -55,7 +55,7 @@
     16#D0 => op_ldz,
     16#F0 => op_ldz,
 
-    16#01 => op_inc, 16#11 => op_stz, 
+    16#01 => op_inc, 16#11 => op_stz,
     16#21 => op_inc, 16#31 => op_stz,
     16#41 => op_inc, 16#51 => op_stz,
     16#61 => op_inc, 16#71 => op_stz,
@@ -117,7 +117,7 @@
     16#A7 => op_ovr, 16#B7 => op_deo,
     16#C7 => op_ovr, 16#D7 => op_deo,
     16#E7 => op_ovr, 16#F7 => op_deo,
-   
+
     16#08 => op_equ, 16#18 => op_add,
     16#28 => op_equ, 16#38 => op_add,
     16#48 => op_equ, 16#58 => op_add,
